@@ -34,29 +34,68 @@ data:
       "clients": [
         {
           "clientId": "model-registry-app",
+          "name": "",
+          "description": "",
+          "rootUrl": "",
+          "adminUrl": "",
+          "baseUrl": "",
+          "surrogateAuthRequired": false,
           "enabled": true,
-          "protocol": "openid-connect",
-          "publicClient": true,
-          "secret": "LZbXY16jR0BRFazUKO3qTAoqXL3Uoet7",
+          "alwaysDisplayInConsole": false,
+          "clientAuthenticatorType": "client-secret",
           "redirectUris": ["*"],
           "webOrigins": ["*"],
+          "notBefore": 0,
+          "bearerOnly": false,
+          "consentRequired": false,
           "standardFlowEnabled": true,
           "implicitFlowEnabled": false,
           "directAccessGrantsEnabled": true,
-          "serviceAccountsEnabled": true,
-          "authorizationServicesEnabled": true,
+          "serviceAccountsEnabled": false,
+          "publicClient": true,
+          "frontchannelLogout": false,
+          "protocol": "openid-connect",
+          "attributes": {
+            "realm_client": "false",
+            "oidc.ciba.grant.enabled": "false",
+            "backchannel.logout.session.required": "true",
+            "standard.token.exchange.enabled": "false",
+            "post.logout.redirect.uris": "+",
+            "display.on.consent.screen": "false",
+            "oauth2.device.authorization.grant.enabled": "false",
+            "backchannel.logout.revoke.offline.tokens": "false"
+          },
+          "authenticationFlowBindingOverrides": {},
           "fullScopeAllowed": true,
+          "nodeReRegistrationTimeout": -1,
           "protocolMappers": [
             {
               "name": "audience-mapper",
               "protocol": "openid-connect",
               "protocolMapper": "oidc-audience-mapper",
+              "consentRequired": false,
               "config": {
                 "included.client.audience": "model-registry-app",
                 "id.token.claim": "false",
-                "access.token.claim": "true"
+                "access.token.claim": "true",
+                "userinfo.token.claim": "false"
               }
             }
+          ],
+          "defaultClientScopes": [
+            "web-origins",
+            "acr",
+            "roles",
+            "profile",
+            "basic",
+            "email"
+          ],
+          "optionalClientScopes": [
+            "address",
+            "phone",
+            "organization",
+            "offline_access",
+            "microprofile-jwt"
           ]
         }
       ],

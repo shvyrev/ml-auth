@@ -17,22 +17,22 @@ fi
 echo -e "\n2. Применение манифестов Kubernetes..."
 
 echo "Создание namespace..."
-kubectl apply -f 01-namespace.yaml
+kubectl apply -f k8s/01-namespace.yaml
 
 echo "Создание secrets..."
-kubectl apply -f 02-secrets.yaml
+kubectl apply -f k8s/02-secrets.yaml
 
 echo "Развертывание PostgreSQL..."
-kubectl apply -f 03-postgresql.yaml
+kubectl apply -f k8s/03-postgresql.yaml
 
 echo "Ожидание запуска PostgreSQL (30 секунд)..."
 sleep 30
 
 echo "Развертывание Keycloak..."
-kubectl apply -f 04-keycloak.yaml
+kubectl apply -f k8s/04-keycloak.yaml
 
 echo "Настройка Ingress..."
-kubectl apply -f 05-ingress.yaml
+kubectl apply -f k8s/05-ingress.yaml
 
 echo -e "\n3. Ожидание запуска сервисов (60 секунд)..."
 sleep 60
@@ -51,4 +51,4 @@ echo "   - Тестовый пользователь: http://localhost:8082 (л�
 echo ""
 echo "ДЛЯ ДОСТУПА ЧЕРЕЗ INGRESS:"
 echo "Добавьте в /etc/hosts: 127.0.0.1 keycloak.local"
-echo "Откройте: http://keycloak.local:8089"
+echo "Откройте: http://keycloak.local"

@@ -51,6 +51,10 @@ echo ""
 echo "После проброса порта откройте в браузере:"
 echo "Админка: http://localhost:8082/admin (admin/admin)"
 echo "Тестовый пользователь: http://localhost:8082 (user/password)"
+echo ""
+echo "ДЛЯ ДОСТУПА ЧЕРЕЗ INGRESS:"
+echo "Добавьте в /etc/hosts: 127.0.0.1 keycloak.local"
+echo "Откройте: http://keycloak.local"
 
 # Проверяем readiness probes
 echo -e "\n9. Проверка readiness probes..."
