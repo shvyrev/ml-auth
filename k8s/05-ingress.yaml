@@ -2,10 +2,10 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: keycloak-ingress
-  namespace: keycloak-namespace
+  namespace: infra
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web
-    traefik.ingress.kubernetes.io/router.middlewares: keycloak-namespace-keycloak-stripprefix@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: infra-keycloak-stripprefix@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:
@@ -26,7 +26,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: keycloak-stripprefix
-  namespace: keycloak-namespace
+  namespace: infra
 spec:
   stripPrefix:
     prefixes:

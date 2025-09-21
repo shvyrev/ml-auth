@@ -34,3 +34,20 @@ This file records architectural and implementation decisions using a list format
 * Аутентификация теперь полностью отключена для клиента
 
 [2025-09-21 12:16:42] - Отключение client authentication в Keycloak
+## Decision
+
+* Reorganization of Kubernetes templates and namespace change
+
+## Rationale
+
+* User request to move templates to k8s folder and change namespace to infra
+* Better organization and naming convention for infrastructure components
+
+## Implementation Details
+
+* Created k8s/ directory for all Kubernetes manifests
+* Moved all YAML files (01-namespace.yaml, 02-secrets.yaml, 03-postgresql.yaml, 04-keycloak.yaml, 05-ingress.yaml) to k8s/
+* Changed namespace from keycloak-namespace to infra in all YAML files
+* Updated deploy.sh and check-deployment.sh scripts to reference new paths and namespace
+
+[2025-09-21 10:27:00] - Reorganization of Kubernetes templates and namespace change to infra

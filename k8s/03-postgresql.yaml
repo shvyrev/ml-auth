@@ -4,7 +4,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-pvc
-  namespace: keycloak-namespace
+  namespace: infra
 spec:
   accessModes:
     - ReadWriteOnce
@@ -18,7 +18,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-config
-  namespace: keycloak-namespace
+  namespace: infra
 data:
   init.sql: |
     CREATE DATABASE keycloak_db;
@@ -29,7 +29,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: postgres-service
-  namespace: keycloak-namespace
+  namespace: infra
   labels:
     app: postgres
 spec:
@@ -46,7 +46,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres-deployment
-  namespace: keycloak-namespace
+  namespace: infra
   labels:
     app: postgres
 spec:
