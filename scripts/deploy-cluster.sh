@@ -167,6 +167,7 @@ deploy_core_manifests() {
     kubectl apply -f k8s/04-keycloak.yaml
     kubectl apply -f k8s/05-redpanda.yaml
     kubectl apply -f k8s/06-redpanda-console.yaml
+    kubectl apply -f k8s/08-model-pvc.yaml
     kubectl apply -f ingress.yaml
     log "Основные манифесты применены."
 }
@@ -180,6 +181,7 @@ deploy_resource_manager() {
 deploy_model_registry() {
     log "Развертывание манифестов model-registry..."
     kubectl apply -f "$MODEL_REGISTRY_DIR/k3s/"
+    # Дополнительно развертываем namespace и PVC для user-inference
     log "Манифесты model-registry применены."
 }
 
