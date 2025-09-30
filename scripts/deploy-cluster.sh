@@ -183,6 +183,8 @@ patch_resource_manager() {
     log "Добавляем Job model-job в деплоймент resource-manager..."
     cd "$RESOURCE_MANAGER_DIR"
     sh/model-job
+    cd ..
+    log "Job model-job успешно добавлен в деплоймент resource-manager."
     log "Деплоймент resource-manager успешно пропатчен."
 }
 
