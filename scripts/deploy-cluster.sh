@@ -178,6 +178,14 @@ deploy_resource_manager() {
     log "Манифесты resource-manager применены."
 }
 
+patch_resource_manager() {
+    log "Патчим деплоймент resource-manager"
+    log "Добавляем Job model-job в деплоймент resource-manager..."
+    cd "$RESOURCE_MANAGER_DIR"
+    sh/model-job
+    log "Деплоймент resource-manager успешно пропатчен."
+}
+
 deploy_model_registry() {
     log "Развертывание манифестов model-registry..."
     kubectl apply -f "$MODEL_REGISTRY_DIR/k3s/"
@@ -189,6 +197,30 @@ deploy_artifact_store() {
     log "Развертывание манифестов artifact-store..."
     kubectl apply -f "$ARTIFACT_STORE_DIR/k3s/"
     log "Манифесты artifact-store применены."
+}
+
+create_jobs_secrets() {
+    log "Создание секретов для jobs..."
+
+    # Проверяем, существует ли namespace 'user-inference-ns', и если нет, создаем его
+    if ! kubectl get namespace user-inference-ns &> /dev/null; then
+        log "Создание namespace 'user-inference-ns'..."
+        kubectl create namespace user-inference-ns
+    fi
+
+    # Получаем секреты MinIO из artifact-store
+    log "Получение секретов MinIO из namespace 'artifact-store'..."
+    ARTIFACT_STORE_MINIO_ACCESS_KEY=$(kubectl get secret artifact-store-secrets -n "artifact-store" -o jsonpath='{.data.MINIO_ACCESS_KEY}' | base64 --decode)
+    ARTIFACT_STORE_MINIO_SECRET_KEY=$(kubectl get secret artifact-store-secrets -n "artifact-store" -o jsonpath='{.data.MINIO_SECRET_KEY}' | base64 --decode)
+
+    log "Создание секрета 'user-inference-secrets' в namespace 'user-inference-ns'..."
+    kubectl create secret generic user-inference-secrets \
+        --namespace=user-inference-ns \
+        --from-literal=S3_MINIO_ACCESS_KEY="$ARTIFACT_STORE_MINIO_ACCESS_KEY" \
+        --from-literal=S3_MINIO_SECRET_KEY="$ARTIFACT_STORE_MINIO_SECRET_KEY" \
+        --dry-run=client -o yaml | kubectl apply -f -
+        
+    log "Секреты для user-inference-ns успешно созданы."
 }
 
 create_resource_manager_secrets() {
@@ -476,11 +508,14 @@ main() {
     clone_and_build_artifact_store
     
     deploy_core_manifests
-    create_secrets # Создание секрета для model-registry
+    create_secrets                      # Создание секрета для model-registry
     create_artifact_store_secrets
-    create_resource_manager_secrets # Создание секрета для resource-manager
-    
+    create_resource_manager_secrets     # Создание секрета для resource-manager
+    create_jobs_secrets                 # Создание секрета для jobs
+
     deploy_resource_manager
+    patch_resource_manager              # Патчим деплоймент resource-manager
+    
     deploy_model_registry
     deploy_artifact_store
     
