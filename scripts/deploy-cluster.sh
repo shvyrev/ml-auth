@@ -208,6 +208,7 @@ create_jobs_secrets() {
     if ! kubectl get namespace user-inference-ns &> /dev/null; then
         log "Создание namespace 'user-inference-ns'..."
         kubectl create namespace user-inference-ns
+        kubectl label namespace user-inference-ns modelmesh-enabled=true
     fi
 
     # Получаем секреты MinIO из artifact-store
@@ -469,6 +470,42 @@ patch_modelmesh_serving() {
     # 4. Патчим Secret
     kubectl patch secret storage-config -n modelmesh-serving --type=json -p='[{"op": "replace", "path": "/data/localMinIO", "value":"'"$new_minio_config"'"}]'
     log "Secret 'storage-config' успешно пропатчен."
+
+    log "Начинаем патчить ConfigMap 'model-serving-config-defaults' для modelmesh-serving..."
+
+    CM_NAME="model-serving-config-defaults"
+    CM_NS="modelmesh-serving"
+
+    log "Добавление параметра 'allowAnyPVC: true' в ConfigMap..."
+
+    # ВНИМАНИЕ: Используем двойной перевод строки (\n\n) для корректного добавления в YAML
+    kubectl patch configmap $CM_NAME -n $CM_NS --type merge -p '{"data":{"config-defaults.yaml":"podsPerRuntime: 2\nheadlessService: true\nmodelMeshImage:\n  name: kserve/modelmesh\n  tag: latest\nmodelMeshResources:\n  requests:\n    cpu: \"300m\"\n    memory: \"448Mi\"\n  limits:\n    cpu: \"3\"\n    memory: \"448Mi\"\nrestProxy:\n  enabled: true\n  port: 8008\n  image:\n    name: kserve/rest-proxy\n    tag: latest\n  resources:\n    requests:\n      cpu: \"50m\"\n      memory: \"96Mi\"\n    limits:\n      cpu: \"1\"\n      memory: \"512Mi\"\nstorageHelperImage:\n  name: kserve/modelmesh-runtime-adapter\n  tag: latest\n  command: [\"/opt/app/puller\"]\nstorageHelperResources:\n  requests:\n    cpu: \"50m\"\n    memory: \"96Mi\"\n  limits:\n    cpu: \"2\"\n    memory: \"512Mi\"\nserviceAccountName: \"\"\nmetrics:\n  enabled: true\nbuiltInServerTypes:\n  - triton\n  - mlserver\n  - ovms\n  - torchserve\nallowAnyPVC: true\n"}}'
+
+    log "ConfigMap $CM_NAME пропатчен с allowAnyPVC: true."
+
+    log "Создание Secret 'storage-config' для PVC..."
+
+    PVC_NAME="model-pvc"
+    NS="user-inference-ns"
+    SECRET_NAME="storage-config"
+
+    log "Создание Secret $SECRET_NAME для регистрации $PVC_NAME..."
+
+    # Создаем Secret с использованием here-документа
+    kubectl apply -n $NS -f - <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ${SECRET_NAME}
+type: Opaque
+stringData:
+  ${PVC_NAME}: |
+    {
+      "type": "pvc",
+      "name": "${PVC_NAME}"
+    }
+EOF
+    log "Secret $SECRET_NAME в $NS создан/обновлен с ключом $PVC_NAME."
 }
 
 show_cluster_info() {
