@@ -226,6 +226,12 @@ create_jobs_secrets() {
     log "Секреты для user-inference-ns успешно созданы."
 }
 
+patch_user_ns() {
+    log "Патчим namespace user-inference-ns для modelmesh..."
+    kubectl label namespace user-inference-ns modelmesh-enabled=true --overwrite
+    log "Namespace user-inference-ns успешно пропатчен."
+}
+
 create_resource_manager_secrets() {
     log "Создание секретов для resource-manager..."
 
@@ -551,6 +557,8 @@ main() {
     create_artifact_store_secrets
     create_resource_manager_secrets     # Создание секрета для resource-manager
     create_jobs_secrets                 # Создание секрета для jobs
+
+    patch_user_ns                       # Патчим namespace user-inference-ns
 
     deploy_resource_manager
     patch_resource_manager              # Патчим деплоймент resource-manager
