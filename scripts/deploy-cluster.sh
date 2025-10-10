@@ -25,6 +25,11 @@ MODEL_REGISTRY_BRANCH="AIPLT-49"
 MODEL_REGISTRY_DIR="ml-platform"
 MODEL_REGISTRY_IMAGE="model-registry:1.0.0"
 
+PREDICTOR_REPO="git@github.com:shvyrev/ml-prediction.git"
+PREDICTOR_BRANCH="dev"
+PREDICTOR_DIR="ml-prediction"
+PREDICTOR_IMAGE="ml-prediction:1.0.0"
+
 ARTIFACT_STORE_REPO="git@github.com:shvyrev/artifact-store.git"
 ARTIFACT_STORE_BRANCH="AIPLT-49"
 ARTIFACT_STORE_DIR="artifact-store"
@@ -135,6 +140,30 @@ clone_and_build_model_registry() {
     cd ..
 }
 
+clone_and_build_predictor() {
+    log "Клонирование репозитория $PREDICTOR_REPO..."
+    git clone --branch "$PREDICTOR_BRANCH" "$PREDICTOR_REPO"
+
+    log "Переход в директорию $PREDICTOR_DIR..."
+    cd "$PREDICTOR_DIR"
+
+    log "Сборка Docker-образа predictor..."
+    mvn clean package -DskipTests
+    docker build -f src/main/docker/Dockerfile.jvm -t "$PREDICTOR_IMAGE" .
+    
+    if [ $? -ne 0 ]; then
+        error "Ошибка при сборке Docker-образа."
+    fi
+
+    log "Образ $PREDICTOR_IMAGE успешно собран."
+
+    log "Импорт образа в кластер k3d..."
+    k3d image import "$PREDICTOR_IMAGE" -c "$CLUSTER_NAME"
+
+    log "Возврат в корневую директорию..."
+    cd ..
+}
+
 clone_and_build_artifact_store() {
     log "Клонирование репозитория $ARTIFACT_STORE_REPO..."
     git clone --branch "$ARTIFACT_STORE_BRANCH" "$ARTIFACT_STORE_REPO"
@@ -193,6 +222,12 @@ deploy_model_registry() {
     kubectl apply -f "$MODEL_REGISTRY_DIR/k3s/"
     # Дополнительно развертываем namespace и PVC для user-inference
     log "Манифесты model-registry применены."
+}
+
+deploy_predictor() {
+    log "Развертывание манифестов prediction-service..."
+    kubectl apply -f "$PREDICTOR_DIR/k3s/"
+    log "Манифесты prediction-service применены."
 }
 
 deploy_artifact_store() {
@@ -551,6 +586,7 @@ main() {
     clone_and_build_resource_manager
     clone_and_build_model_registry
     clone_and_build_artifact_store
+    # clone_and_build_predictor
     
     deploy_core_manifests
     create_secrets                      # Создание секрета для model-registry
@@ -565,6 +601,7 @@ main() {
     
     deploy_model_registry
     deploy_artifact_store
+    # deploy_predictor                    # Развертывание предиктора prediction-service
     
     install_modelmesh
     patch_modelmesh_serving
