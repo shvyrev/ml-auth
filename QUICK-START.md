@@ -103,7 +103,7 @@ kubectl apply -f k8s/templates/java-service-1.yaml
 ### 4. Настройка Keycloak
 1. Keycloak Dashboard - http://keycloak.local
 2. Manage Realms - [v] model-registry-realm
-3. Realm Settings -> General -> Frontend URL -> http://keycloak:8080/ -> [Save]
+3. Realm Settings -> General -> Frontend URL -> http://keycloak.local/ -> [Save]
 
 ## 🛑 Остановка и очистка
 
