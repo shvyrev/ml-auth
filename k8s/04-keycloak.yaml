@@ -54,6 +54,19 @@ data:
               }
             }
           ]
+        },
+        {
+          "clientId": "m2m-client",
+          "enabled": true,
+          "protocol": "openid-connect",
+          "publicClient": false,
+          "secret": "MySecureSecretForM2M",
+          "standardFlowEnabled": false,
+          "implicitFlowEnabled": false,
+          "directAccessGrantsEnabled": false,
+          "serviceAccountsEnabled": true,
+          "authorizationServicesEnabled": false,
+          "fullScopeAllowed": true
         }
       ],
       "roles": {
@@ -151,6 +164,8 @@ spec:
             - containerPort: 8443
               name: https
           env:
+            - name: KC_IMPORT_FILE_MODEL_REGISTRY_REALM_STRATEGY
+              value: "OVERWRITE"                                    # Overwrite existing realm with the same name. Only for demo purposes.
             - name: KEYCLOAK_ADMIN
               value: "admin"
             - name: KEYCLOAK_ADMIN_PASSWORD
