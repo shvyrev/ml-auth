@@ -164,8 +164,10 @@ spec:
             - containerPort: 8443
               name: https
           env:
-            - name: KC_IMPORT_FILE_MODEL_REGISTRY_REALM_STRATEGY
-              value: "OVERWRITE"                                    # Overwrite existing realm with the same name. Only for demo purposes.
+            - name: KC_HTTP_ENABLED
+              value: "true"
+            - name: KC_PROXY
+              value: "edge"
             - name: KEYCLOAK_ADMIN
               value: "admin"
             - name: KEYCLOAK_ADMIN_PASSWORD
@@ -190,6 +192,8 @@ spec:
               value: "true"
             - name: KC_PROXY_HEADERS
               value: "xforwarded"
+            - name: KC_HOSTNAME
+              value: keycloak.model-registry.svc.cluster.local
             - name: KC_FEATURES
               value: "hostname:v2"
           volumeMounts:
